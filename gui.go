@@ -227,6 +227,9 @@ func handleOpenAsarConfirmed() {
 }
 
 func handleErr(di *DiscordInstall, err error, action string) {
+	if errors.Is(err, ErrAlreadyReported) {
+		return
+	}
 	if errors.Is(err, os.ErrPermission) {
 		switch runtime.GOOS {
 		case "windows":
