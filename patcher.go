@@ -19,22 +19,22 @@ import (
 
 var BaseDir string
 var BaseDirErr error
-var EquicordDirectory string
+var NunDirectory string
 
 var ErrAlreadyReported = errors.New("already reported")
 
 func init() {
-	if dir := os.Getenv("EQUICORD_USER_DATA_DIR"); dir != "" {
-		Log.Debug("Using EQUICORD_USER_DATA_DIR")
+	if dir := os.Getenv("NUN_USER_DATA_DIR"); dir != "" {
+		Log.Debug("Using NUN_USER_DATA_DIR")
 		BaseDir = dir
 	} else if dir = os.Getenv("DISCORD_USER_DATA_DIR"); dir != "" {
-		Log.Debug("Using DISCORD_USER_DATA_DIR/../EquicordData")
-		BaseDir = path.Join(dir, "..", "EquicordData")
+		Log.Debug("Using DISCORD_USER_DATA_DIR/../NunData")
+		BaseDir = path.Join(dir, "..", "NunData")
 	} else {
 		Log.Debug("Using UserConfig")
-		BaseDir = appdir.New("Equicord").UserConfig()
+		BaseDir = appdir.New("Nun").UserConfig()
 	}
-	dir := os.Getenv("EQUICORD_DIRECTORY")
+	dir := os.Getenv("NUN_DIRECTORY")
 	if dir == "" {
 		if !ExistsFile(BaseDir) {
 			BaseDirErr = os.Mkdir(BaseDir, 0755)
@@ -46,10 +46,10 @@ func init() {
 		}
 	}
 	if dir != "" {
-		Log.Debug("Using EQUICORD_DIRECTORY")
-		EquicordDirectory = dir
+		Log.Debug("Using NUN_DIRECTORY")
+		NunDirectory = dir
 	} else {
-		EquicordDirectory = path.Join(BaseDir, "equicord.asar")
+		NunDirectory = path.Join(BaseDir, "nun.asar")
 	}
 }
 
@@ -102,7 +102,7 @@ func patchAppAsar(dir string, isSystemElectron bool) (err error) {
 	}
 
 	Log.Debug("Writing custom app.asar to", appAsar)
-	if err := WriteAppAsar(appAsar, EquicordDirectory); err != nil {
+	if err := WriteAppAsar(appAsar, NunDirectory); err != nil {
 		return err
 	}
 
@@ -152,14 +152,14 @@ func (di *DiscordInstall) patch() error {
 			}
 		}
 
-		Log.Debug("This is a flatpak. Trying to grant the Flatpak access to", EquicordDirectory+"...")
+		Log.Debug("This is a flatpak. Trying to grant the Flatpak access to", NunDirectory+"...")
 
 		isSystemFlatpak := strings.HasPrefix(di.path, "/var")
 		var args []string
 		if !isSystemFlatpak {
 			args = append(args, "--user")
 		}
-		args = append(args, "override", name, "--filesystem="+EquicordDirectory)
+		args = append(args, "override", name, "--filesystem="+NunDirectory)
 		fullCmd := "flatpak " + strings.Join(args, " ")
 
 		Log.Debug("Running", fullCmd)
@@ -180,7 +180,7 @@ func (di *DiscordInstall) patch() error {
 			err = cmd.Run()
 		}
 		if err != nil {
-			return errors.New("Failed to grant Discord Flatpak access to " + EquicordDirectory + ": " + err.Error())
+			return errors.New("Failed to grant Discord Flatpak access to " + NunDirectory + ": " + err.Error())
 		}
 	}
 	return nil
@@ -190,7 +190,7 @@ func (di *DiscordInstall) patch() error {
 
 // region Unpatch
 
-func isEquicordLoaderAppAsar(appAsar string) (bool, error) {
+func isNunLoaderAppAsar(appAsar string) (bool, error) {
 	stat, err := os.Stat(appAsar)
 	if err != nil {
 		return false, err
@@ -209,7 +209,7 @@ func cleanupDesyncedPatchedInstall(dir string, isSystemElectron bool) (bool, err
 	appAsar := path.Join(dir, "app.asar")
 	_appAsar := path.Join(dir, "_app.asar")
 
-	isLoader, err := isEquicordLoaderAppAsar(appAsar)
+	isLoader, err := isNunLoaderAppAsar(appAsar)
 	if err != nil {
 		return false, err
 	}
@@ -217,7 +217,7 @@ func cleanupDesyncedPatchedInstall(dir string, isSystemElectron bool) (bool, err
 		return false, nil
 	}
 
-	Log.Warn("Detected a patched install with a non-Equicord app.asar. Discord was likely updated while patched; removing stale _app.asar")
+	Log.Warn("Detected a patched install with a non-Nun app.asar. Discord was likely updated while patched; removing stale _app.asar")
 
 	if err = os.Remove(_appAsar); err != nil {
 		return false, CheckIfErrIsCauseItsBusyRn(err)

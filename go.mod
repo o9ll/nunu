@@ -1,4 +1,4 @@
-module equilotl
+module nunu
 
 go 1.26.2
 

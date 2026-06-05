@@ -11,7 +11,7 @@ package main
 import (
 	"bytes"
 	_ "embed"
-	"equilotl/buildinfo"
+	"nunu/buildinfo"
 	"errors"
 	"image"
 	"image/color"
@@ -67,19 +67,19 @@ func init() {
 
 func main() {
 	var fallbackScale float32 = 1.0
-	if scaleStr := os.Getenv("EQUILOTL_SCALE"); scaleStr != "" {
+	if scaleStr := os.Getenv("NUNU_SCALE"); scaleStr != "" {
 		if s, err := strconv.ParseFloat(scaleStr, 32); err == nil && s > 0 && s < 99 {
 			fallbackScale = float32(s)
 			Log.Info("Using custom DPI scale:", fallbackScale)
 		} else {
-			Log.Warn("Invalid value for EQUILOTL_SCALE:", scaleStr)
+			Log.Warn("Invalid value for NUNU_SCALE:", scaleStr)
 		}
-	} else if scaleStr := os.Getenv("EQUILOTL_DPI_SCALE"); scaleStr != "" {
+	} else if scaleStr := os.Getenv("NUNU_DPI_SCALE"); scaleStr != "" {
 		if s, err := strconv.ParseFloat(scaleStr, 32); err == nil && s > 0 && s < 99 {
 			fallbackScale = float32(s)
 			Log.Info("Using custom DPI scale:", fallbackScale)
 		} else {
-			Log.Warn("Invalid value for EQUILOTL_DPI_SCALE:", scaleStr)
+			Log.Warn("Invalid value for NUNU_DPI_SCALE:", scaleStr)
 		}
 	}
 
@@ -116,7 +116,7 @@ func main() {
 		os.Setenv("GDK_DPI_SCALE", "1")
 	}
 
-	win = g.NewMasterWindow("Equilotl", 1200, 800, linuxFlags)
+	win = g.NewMasterWindow("Nunu", 1200, 800, linuxFlags)
 
 	go func() {
 		<-GithubDoneChan
@@ -177,7 +177,7 @@ func InstallLatestBuilds() (err error) {
 
 	err = installLatestBuilds()
 	if err != nil {
-		ShowModal("Uh Oh!", "Failed to install the latest Equicord builds from GitHub:\n"+err.Error())
+		ShowModal("Uh Oh!", "Failed to install the latest Nun builds from GitHub:\n"+err.Error())
 	}
 	return
 }
@@ -523,7 +523,7 @@ func renderInstaller() g.Widget {
 			DiscordYellow,
 			func() *g.MarkdownWidget {
 				if cachedWarningMarkdown == nil {
-					cachedWarningMarkdown = g.Markdown("**Github** and **equicord.org** are the only official places to get Equicord. Any other site claiming to be us is malicious.\n" +
+					cachedWarningMarkdown = g.Markdown("**Github** and **o9ll.com** are the only official places to get Nun. Any other site claiming to be us is malicious.\n" +
 						"If you downloaded from any other source, you should delete / uninstall everything immediately, run a malware scan and change your Discord password.")
 				}
 				return cachedWarningMarkdown
@@ -632,7 +632,7 @@ func renderInstaller() g.Widget {
 							}
 						}).
 						Size(btnWidth, 50),
-					Tooltip("Reinstall & Update Equicord"),
+					Tooltip("Reinstall & Update Nun"),
 				),
 			g.Style().
 				SetColor(g.StyleColorButton, DiscordRed).
@@ -653,16 +653,16 @@ func renderInstaller() g.Widget {
 		),
 
 		InfoModal("#patched", "Successfully Patched", "If Discord is still open, fully close it first.\n"+
-			"Then, start it and verify Equicord installed successfully by looking for its category in Discord Settings"),
+			"Then, start it and verify Nun installed successfully by looking for its category in Discord Settings"),
 		InfoModal("#unpatched", "Successfully Unpatched", "If Discord is still open, fully close it first. Then start it again, it should be back to stock!"),
 		InfoModal("#scuffed-install", "Hold On!", "You have a broken Discord Install.\n"+
 			"Sometimes Discord decides to install to the wrong location for some reason!\n"+
-			"You need to fix this before patching, otherwise Equicord will likely not work.\n\n"+
+			"You need to fix this before patching, otherwise Nun will likely not work.\n\n"+
 			"Use the below button to jump there and delete any folder called Discord or Squirrel.\n"+
 			"If the folder is now empty, feel free to go back a step and delete that folder too.\n"+
 			"Then see if Discord still starts. If not, reinstall it"),
 		RawInfoModal("#openasar-confirm", "OpenAsar", "OpenAsar is an open-source alternative of Discord desktop's app.asar.\n"+
-			"Equicord is in no way affiliated with OpenAsar.\n"+
+			"Nun is in no way affiliated with OpenAsar.\n"+
 			"You're installing OpenAsar at your own risk. If you run into issues with OpenAsar,\n"+
 			"no support will be provided, join the OpenAsar Server instead!\n\n"+
 			"To install OpenAsar, press Accept and click 'Install OpenAsar' again.", true),
@@ -728,39 +728,39 @@ func loop() {
 			g.Style().SetFontSize(baseFontSize).To(
 				g.Align(g.AlignCenter).To(
 					g.Style().SetFontSize(baseHeaderSize).To(
-						g.Label("Equilotl"),
+						g.Label("Nunu"),
 					),
 				),
 
 				g.Dummy(0, 20),
 
 				g.Row(
-					g.Label(Ternary(IsDevInstall, "Dev Install: ", "Equicord will be downloaded to: ")+EquicordDirectory),
+					g.Label(Ternary(IsDevInstall, "Dev Install: ", "Nun will be downloaded to: ")+NunDirectory),
 					g.Style().
 						SetColor(g.StyleColorButton, DiscordBlue).
 						SetStyle(g.StyleVarFramePadding, 4, 4).
 						To(
 							g.Button("Open Directory").OnClick(func() {
-								g.OpenURL("file://" + path.Dir(EquicordDirectory))
+								g.OpenURL("file://" + path.Dir(NunDirectory))
 							}),
 						),
 				),
 
 				&CondWidget{!IsDevInstall, func() g.Widget {
-					return g.Label("To customise this location, set the environment variable 'EQUICORD_USER_DATA_DIR' and restart me").Wrapped(true)
+					return g.Label("To customise this location, set the environment variable 'NUN_USER_DATA_DIR' and restart me").Wrapped(true)
 				}, nil},
 
 				g.Dummy(0, 10),
-				g.Label("Equilotl Version: "+buildinfo.InstallerTag+" ("+buildinfo.InstallerGitHash+")"+Ternary(IsSelfOutdated, " - OUTDATED", "")),
-				g.Label("Local Equicord Version: "+InstalledHash),
+				g.Label("Nunu Version: "+buildinfo.InstallerTag+" ("+buildinfo.InstallerGitHash+")"+Ternary(IsSelfOutdated, " - OUTDATED", "")),
+				g.Label("Local Nun Version: "+InstalledHash),
 
 				&CondWidget{
 					GithubError == nil,
 					func() g.Widget {
 						if IsDevInstall {
-							return g.Label("Not updating Equicord due to being in DevMode")
+							return g.Label("Not updating Nun due to being in DevMode")
 						}
-						return g.Label("Latest Equicord Version: " + LatestHash)
+						return g.Label("Latest Nun Version: " + LatestHash)
 					}, func() g.Widget {
 						return renderErrorCard(DiscordRed, func() *g.MarkdownWidget {
 							errText := "Failed to fetch Info from GitHub: " + GithubError.Error()
